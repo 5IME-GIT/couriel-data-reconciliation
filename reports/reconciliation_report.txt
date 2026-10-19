@@ -1,0 +1,23 @@
+DATA RECONCILIATION REPORT
+==============================
+
+Matching records: 1
+Records missing from source B: 1
+Records missing from source A: 1
+Records with conflicting values: 1
+
+RECORDS MISSING FROM SOURCE B
+------------------------------
+103
+
+RECORDS MISSING FROM SOURCE A
+------------------------------
+104
+
+CONFLICTING RECORDS
+------------------------------
+Record ID: 102
+  Field: email
+  Source A: sam@example.com
+  Source B: sam.new@example.com
+
