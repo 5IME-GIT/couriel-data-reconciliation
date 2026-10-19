@@ -130,5 +130,30 @@ class TestReconcile(unittest.TestCase):
                 reconcile(path, SOURCE_B, key="customer_id")
 
 
+    def test_missing_fields_in_csv_row_raise_error(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "missing_fields.csv"
+            path.write_text(
+                "customer_id,email\n"
+                "101\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValueError, "field count"):
+                reconcile(path, SOURCE_B, key="customer_id")
+
+    def test_extra_fields_in_csv_row_raise_error(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "extra_fields.csv"
+            path.write_text(
+                "customer_id,email\n"
+                "101,alex@example.com,unexpected\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValueError, "field count"):
+                reconcile(path, SOURCE_B, key="customer_id")
+
+
 if __name__ == "__main__":
     unittest.main()

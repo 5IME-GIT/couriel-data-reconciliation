@@ -25,6 +25,9 @@ def load_records(path, key):
             raise ValueError(f"Required column not found: {key}")
 
         for row in reader:
+            if None in row or any(row.get(column) is None for column in headers):
+                raise ValueError(f"CSV row has incorrect field count: {path}")
+
             record_id = (row.get(key) or "").strip()
 
             if not record_id:
