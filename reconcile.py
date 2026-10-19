@@ -25,16 +25,27 @@ def load_records(path, key):
             raise ValueError(f"Required column not found: {key}")
 
         for row in reader:
+            row_number = reader.line_num
+
             if None in row or any(row.get(column) is None for column in headers):
-                raise ValueError(f"CSV row has incorrect field count: {path}")
+                raise ValueError(
+                    f"CSV row has incorrect field count in {path} "
+                    f"at row {row_number}"
+                )
 
             record_id = (row.get(key) or "").strip()
 
             if not record_id:
-                raise ValueError(f"Empty value found in key column: {key}")
+                raise ValueError(
+                    f"Empty value found in key column: {key} "
+                    f"in {path} at row {row_number}"
+                )
 
             if record_id in records:
-                raise ValueError(f"Duplicate ID found: {record_id}")
+                raise ValueError(
+                    f"Duplicate ID found: {record_id} "
+                    f"in {path} at row {row_number}"
+                )
 
             records[record_id] = {
                 column: (value or "").strip()

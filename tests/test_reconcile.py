@@ -155,5 +155,49 @@ class TestReconcile(unittest.TestCase):
                 reconcile(path, SOURCE_B, key="customer_id")
 
 
+    def test_missing_fields_error_includes_file_and_row_number(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "missing_fields.csv"
+            path.write_text(
+                "customer_id,email\n"
+                "101\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError, r"missing_fields\.csv.*row 2"
+            ):
+                reconcile(path, SOURCE_B, key="customer_id")
+
+    def test_empty_key_error_includes_row_number(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "empty_key.csv"
+            path.write_text(
+                "customer_id,email\n"
+                ",alex@example.com\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError, r"empty_key\.csv.*row 2"
+            ):
+                reconcile(path, SOURCE_B, key="customer_id")
+
+    def test_duplicate_id_error_includes_row_number(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "duplicates.csv"
+            path.write_text(
+                "customer_id,email\n"
+                "102,first@example.com\n"
+                "102,second@example.com\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(
+                ValueError, r"duplicates\.csv.*row 3"
+            ):
+                reconcile(path, SOURCE_B, key="customer_id")
+
+
 if __name__ == "__main__":
     unittest.main()
