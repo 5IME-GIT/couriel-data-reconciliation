@@ -93,16 +93,41 @@ class TestReconcile(unittest.TestCase):
                 source_b = Path(temp_dir) / "source_b.csv"
 
                 source_a.write_text(
-                    "customer_id,email\\n",
+                    "customer_id,email\n",
                     encoding="utf-8",
                 )
                 source_b.write_text(
-                    "customer_id,phone\\n",
+                    "customer_id,phone\n",
                     encoding="utf-8",
                 )
 
                 with self.assertRaisesRegex(ValueError, "columns"):
                     reconcile(source_a, source_b, key="customer_id")
+
+
+    def test_duplicate_column_names_raise_error(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "duplicate_columns.csv"
+            path.write_text(
+                "customer_id,email,email\n"
+                "101,alex@example.com,other@example.com\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValueError, "duplicate column names"):
+                reconcile(path, SOURCE_B, key="customer_id")
+
+    def test_blank_column_name_raises_error(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "blank_column.csv"
+            path.write_text(
+                "customer_id,,email\n"
+                "101,123,alex@example.com\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ValueError, "blank column name"):
+                reconcile(path, SOURCE_B, key="customer_id")
 
 
 if __name__ == "__main__":

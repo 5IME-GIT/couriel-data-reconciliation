@@ -11,7 +11,15 @@ def load_records(path, key):
         if reader.fieldnames is None:
             raise ValueError(f"CSV file has no header: {path}")
 
-        columns = set(reader.fieldnames)
+        headers = reader.fieldnames
+
+        if any(not column.strip() for column in headers):
+            raise ValueError(f"CSV contains a blank column name: {path}")
+
+        if len(headers) != len(set(headers)):
+            raise ValueError(f"CSV contains duplicate column names: {path}")
+
+        columns = set(headers)
 
         if key not in columns:
             raise ValueError(f"Required column not found: {key}")
