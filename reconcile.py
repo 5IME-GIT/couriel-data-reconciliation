@@ -2,7 +2,7 @@ import csv
 
 
 def load_records(path, key):
-    """Load CSV records and index them by a unique key."""
+    """Load CSV records and return their headers and indexed records."""
     records = {}
 
     with open(path, "r", newline="", encoding="utf-8-sig") as file:
@@ -11,7 +11,9 @@ def load_records(path, key):
         if reader.fieldnames is None:
             raise ValueError(f"CSV file has no header: {path}")
 
-        if key not in reader.fieldnames:
+        columns = set(reader.fieldnames)
+
+        if key not in columns:
             raise ValueError(f"Required column not found: {key}")
 
         for row in reader:
@@ -29,16 +31,13 @@ def load_records(path, key):
                 if column is not None
             }
 
-    return records
+    return columns, records
 
 
 def reconcile(source_a, source_b, key):
     """Compare two CSV datasets and report discrepancies."""
-    records_a = load_records(source_a, key)
-    records_b = load_records(source_b, key)
-
-    columns_a = set(records_a[next(iter(records_a))]) if records_a else set()
-    columns_b = set(records_b[next(iter(records_b))]) if records_b else set()
+    columns_a, records_a = load_records(source_a, key)
+    columns_b, records_b = load_records(source_b, key)
 
     if columns_a != columns_b:
         raise ValueError(
