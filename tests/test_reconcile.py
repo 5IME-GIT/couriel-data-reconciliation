@@ -87,6 +87,23 @@ class TestReconcile(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "header"):
                 reconcile(empty_path, SOURCE_B, key="customer_id")
 
+    def test_header_only_csvs_with_different_columns_raise_error(self):
+            with tempfile.TemporaryDirectory() as temp_dir:
+                source_a = Path(temp_dir) / "source_a.csv"
+                source_b = Path(temp_dir) / "source_b.csv"
+
+                source_a.write_text(
+                    "customer_id,email\\n",
+                    encoding="utf-8",
+                )
+                source_b.write_text(
+                    "customer_id,phone\\n",
+                    encoding="utf-8",
+                )
+
+                with self.assertRaisesRegex(ValueError, "columns"):
+                    reconcile(source_a, source_b, key="customer_id")
+
 
 if __name__ == "__main__":
     unittest.main()
